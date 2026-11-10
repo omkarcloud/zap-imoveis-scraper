@@ -1,0 +1,11 @@
+services:
+  zap-imoveis-scraper:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      # Optional — most connections reach ZAP Imóveis directly. Set it only if
+      # Cloudflare answers every call with "blocked" (see config.py).
+      # - ZAP_IMOVEIS_PROXY=http://user:pass@host:port
