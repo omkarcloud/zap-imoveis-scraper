@@ -188,10 +188,12 @@ def glue_get(path, params, label):
     return _retrying(once)
 
 
+# A new development's units (one child listing per unit type). /v2/listing
+# returns them too when asked — without it a development's details had none.
+CHILDREN_FIELDS = "children(id,usableAreas,totalAreas,bedrooms,bathrooms,parkingSpaces,pricingInfos)"
 SEARCH_FIELDS = ("search(result(listings(listing,account,medias,accountLink,link,"
-                 "children(id,usableAreas,totalAreas,bedrooms,bathrooms,parkingSpaces,pricingInfos))),"
-                 "totalCount)")
-LISTING_FIELDS = "listing,account,medias,link,accountLink"
+                 f"{CHILDREN_FIELDS})),totalCount)")
+LISTING_FIELDS = f"listing,account,medias,link,accountLink,{CHILDREN_FIELDS}"
 ACCOUNT_FIELDS = ("search(totalCount),account(config,id,name,logoUrl,licenseNumber,websiteUrl,showAddress,"
                   "legacyVivarealId,legacyZapId,createdDate,phones(primary,mobile),trustScore,tier,"
                   "addresses(billing(city,street,streetNumber,zipCode,neighborhood,state,stateAcronym,"
@@ -222,7 +224,7 @@ def fetch_count(params, label="count"):
 
 
 def fetch_listing(listing_id):
-    """GET /v2/listing/<id> -> {listing, account, medias, link, accountLink}."""
+    """GET /v2/listing/<id> -> {listing, account, medias, link, accountLink, children}."""
     return glue_get(f"/v2/listing/{listing_id}", {"includeFields": LISTING_FIELDS}, f"listing {listing_id}")
 
 

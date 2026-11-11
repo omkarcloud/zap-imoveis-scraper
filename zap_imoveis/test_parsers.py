@@ -16,7 +16,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scraper_errors import NotFound  # noqa: E402
-from zap_imoveis import api, parsers as P, refs  # noqa: E402
+from zap_imoveis import api, fetch as F, parsers as P, refs  # noqa: E402
 
 FX = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures")
 PINHEIROS = "BR>Sao Paulo>NULL>Sao Paulo>Zona Oeste>Pinheiros"
@@ -209,6 +209,19 @@ def test_parse_listing_detail_development():
     assert record["unit_ranges"]["usable_area_m2"] == {"min": 24, "max": 51}
     assert record["pricing"]["price"] == 358070 and record["other_pricing"][0]["price"] == 366558
     assert record["advertiser"]["type"] == "developer"
+
+
+def test_parse_listing_detail_development_units():
+    # /v2/listing fetched with fetch.LISTING_FIELDS (children included): the
+    # development's units come with its details, not only with search rows.
+    assert "children(" in F.LISTING_FIELDS
+    record = P.parse_listing_detail(fixture("listing_development_units_2869114445.json"))
+    assert record["listing_type"] == "new_development"
+    assert len(record["units"]) == 4
+    assert record["units"][0] == {"id": "2869116981", "price": 265200, "currency": "BRL", "usable_area_m2": 30,
+                                  "total_area_m2": 45, "bedrooms": 1, "bathrooms": 1, "parking_spaces": 0}
+    used = P.parse_listing_detail(fixture("listing_used_2886301373.json"))
+    assert used["units"] is None
 
 
 # ---- locations ----------------------------------------------------------------------------
