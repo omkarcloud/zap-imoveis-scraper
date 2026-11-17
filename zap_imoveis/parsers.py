@@ -35,6 +35,7 @@ import re
 from zap_imoveis.refs import (BUSINESS_LABEL, CONSTRUCTION_STATUS_LABEL, CURRENCY, LISTING_TYPE_LABEL, SITE,
                               company_link, condominium_link, location_slug_from_url, photo_url, property_link,
                               property_type_label, short_condominium_id)
+from scraper_utils.text import stripped as _str
 
 _RSC_CHUNK_RE = re.compile(r'self\.__next_f\.push\(\[1,"((?:[^"\\]|\\.)*)"\]\)', re.S)
 _RSC_REF_RE = re.compile(r"^\$[0-9a-zA-Z:]+$")
@@ -68,14 +69,6 @@ def _money(value):
     """A price-like amount where 0 means "not informed"."""
     number = _num(value)
     return number if number else None
-
-
-def _str(value):
-    if isinstance(value, str):
-        value = value.strip()
-        if value and not _RSC_REF_RE.match(value):
-            return value
-    return None
 
 
 def _lower(value):

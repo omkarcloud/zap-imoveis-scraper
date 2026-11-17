@@ -53,6 +53,7 @@ import config
 import egress
 from scraper_errors import BadRequest, Blocked, NotFound, UpstreamError
 from zap_imoveis.refs import GLUE, SITE, X_DOMAIN
+from scraper_utils import sessions
 
 IMPERSONATE = "chrome"
 GLUE_TIMEOUT = 30
@@ -113,11 +114,7 @@ def _drop_session(blocked=False):
     global _fallback_until
     sess = getattr(_local, "session", None)
     _local.session = None
-    if sess is not None:
-        try:
-            sess.close()
-        except Exception:
-            pass
+    sessions.close_quietly(sess)
     if blocked and config.zap_imoveis_proxy() is None and config.zap_imoveis_fallback_proxy() is not None:
         with _fallback_lock:
             _fallback_until = max(_fallback_until, time.time() + config.ZAP_IMOVEIS_BLOCK_COOLDOWN)
